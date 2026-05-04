@@ -51,3 +51,20 @@ GROUP BY source
 ORDER BY total_articles DESC;
 
 COMMENT ON TABLE articles IS 'Articles de presse collectés - couche Silver';
+
+-- Vue : Articles par pays
+CREATE OR REPLACE VIEW articles_par_pays AS
+SELECT
+    CASE source
+        WHEN 'Hespress' THEN 'Maroc'
+        WHEN 'Akhbarona' THEN 'Maroc'
+        WHEN 'BBC News' THEN 'Royaume-Uni'
+        WHEN 'Al Jazeera' THEN 'Qatar'
+        WHEN 'Reuters' THEN 'Royaume-Uni'
+        WHEN 'CNN' THEN 'USA'
+        ELSE 'Inconnu'
+    END AS pays,
+    COUNT(*) AS nombre_articles
+FROM articles
+GROUP BY pays
+ORDER BY nombre_articles DESC;
