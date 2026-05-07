@@ -4,7 +4,7 @@ services:
 
   minio:
     image: minio/minio:latest
-    container_name: minio
+    container_name: minio2
     ports:
       - '9000:9000'
       - '9001:9001'
@@ -30,13 +30,13 @@ services:
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.4.0
-    container_name: zookeeper
+    container_name: zookeeper2
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
 
   kafka:
     image: confluentinc/cp-kafka:7.4.0
-    container_name: kafka
+    container_name: kafka2
     depends_on: [zookeeper]
     ports:
       - '9092:9092'
