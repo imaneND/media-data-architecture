@@ -2,13 +2,12 @@ version: '3.8'
 
 services:
 
-  # ─── MinIO : Data Lake (stockage fichiers) ───────────────
   minio:
     image: minio/minio:latest
-    container_name: minio-projet-medias
+    container_name: minio2
     ports:
-      - '9000:9000'        # API MinIO
-      - '9001:9001'        # Interface web (ouvrez http://localhost:9001)
+      - '9000:9000'
+      - '9001:9001'
     environment:
       MINIO_ROOT_USER: minioadmin
       MINIO_ROOT_PASSWORD: minioadmin123
@@ -16,7 +15,6 @@ services:
     volumes:
       - minio_data:/data
 
-  # ─── PostgreSQL : Data Warehouse ──────────────────────────
   postgres:
     image: postgres:15
     container_name: postgres
@@ -30,17 +28,15 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./warehouse/create_tables.sql:/docker-entrypoint-initdb.d/init.sql
 
-  # ─── Zookeeper : nécessaire pour Kafka ────────────────────
   zookeeper:
     image: confluentinc/cp-zookeeper:7.4.0
-    container_name: zookeeper-projet-medias
+    container_name: zookeeper2
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
 
-  # ─── Apache Kafka : Streaming ─────────────────────────────
   kafka:
     image: confluentinc/cp-kafka:7.4.0
-    container_name: kafka-projet-medias
+    container_name: kafka2
     depends_on: [zookeeper]
     ports:
       - '9092:9092'
@@ -50,13 +46,12 @@ services:
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
 
-  # ─── Apache Airflow : Orchestration ───────────────────────
   airflow:
     image: apache/airflow:2.7.0
     container_name: airflow
     depends_on: [postgres]
     ports:
-      - '8080:8080'     # Interface web : http://localhost:8080
+      - '8080:8080'
     environment:
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://admin:admin123@postgres/newsdb
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
@@ -64,25 +59,15 @@ services:
       - ./airflow/dags:/opt/airflow/dags
     command: standalone
 
-  # ─── Grafana : Visualisation ──────────────────────────────
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
     ports:
-      - '3000:3000'     # Interface web : http://localhost:3000
+      - '3000:3000'
     environment:
       GF_SECURITY_ADMIN_PASSWORD: admin
     volumes:
       - grafana_data:/var/lib/grafana
-
-  # ─── Prometheus : Monitoring (Optionnel) ──────────────────
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: prometheus
-    ports:
-      - '9090:9090'
-    volumes:
-      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
 
 volumes:
   minio_data:

@@ -1,0 +1,94 @@
+{
+  "__inputs": [],
+  "__requires": [],
+  "annotations": {
+    "list": []
+  },
+  "description": "Dashboard articles de presse - Projet Big Data",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "datasource": "PostgreSQL",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "thresholds": {
+            "steps": [
+              {"color": "green", "value": null}
+            ]
+          }
+        }
+      },
+      "gridPos": {"h": 4, "w": 6, "x": 0, "y": 0},
+      "id": 1,
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}},
+      "title": "Total Articles",
+      "type": "stat",
+      "targets": [
+        {
+          "rawSql": "SELECT COUNT(*) AS value FROM articles;",
+          "format": "table"
+        }
+      ]
+    },
+    {
+      "datasource": "PostgreSQL",
+      "fieldConfig": {
+        "defaults": {"color": {"mode": "palette-classic"}}
+      },
+      "gridPos": {"h": 8, "w": 12, "x": 6, "y": 0},
+      "id": 2,
+      "title": "Articles par Source",
+      "type": "piechart",
+      "targets": [
+        {
+          "rawSql": "SELECT source AS metric, COUNT(*) AS value FROM articles GROUP BY source ORDER BY value DESC;",
+          "format": "table"
+        }
+      ]
+    },
+    {
+      "datasource": "PostgreSQL",
+      "fieldConfig": {
+        "defaults": {"color": {"mode": "palette-classic"}}
+      },
+      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 8},
+      "id": 3,
+      "title": "Evolution Articles par Jour",
+      "type": "timeseries",
+      "targets": [
+        {
+          "rawSql": "SELECT DATE(date_publication) AS time, COUNT(*) AS value, source AS metric FROM articles WHERE date_publication > NOW() - INTERVAL '30 days' GROUP BY DATE(date_publication), source ORDER BY time;",
+          "format": "table"
+        }
+      ]
+    },
+    {
+      "datasource": "PostgreSQL",
+      "fieldConfig": {
+        "defaults": {"color": {"mode": "palette-classic"}}
+      },
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16},
+      "id": 4,
+      "title": "Top Categories",
+      "type": "barchart",
+      "targets": [
+        {
+          "rawSql": "SELECT categorie AS metric, COUNT(*) AS value FROM articles WHERE categorie != 'unknown' GROUP BY categorie ORDER BY value DESC LIMIT 10;",
+          "format": "table"
+        }
+      ]
+    }
+  ],
+  "refresh": "5m",
+  "schemaVersion": 38,
+  "tags": ["big-data", "articles", "presse"],
+  "time": {"from": "now-30d", "to": "now"},
+  "title": "Plateforme Big Data - Articles de Presse",
+  "uid": "big-data-articles",
+  "version": 1
+}
