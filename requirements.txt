@@ -22,3 +22,5 @@ psycopg2-binary==2.9.12
 
 # Qualité et gouvernance
 great-expectations==0.18.0
+
+pydantic==2.12.5
