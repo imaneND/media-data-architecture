@@ -7,6 +7,7 @@ import hashlib
 from datetime import datetime
 from datalake.minio_client import get_client, read_json_from_minio, write_json_to_minio
 from datalake.minio_client import list_objects, BUCKET_BRONZE, BUCKET_SILVER
+from models.article_model import valider_liste_articles
 
 def clean_html(text):
     """Supprimer les balises HTML d'un texte."""
@@ -84,9 +85,16 @@ def process_bronze_to_silver():
             seen_ids.add(cleaned['id'])
             articles_clean.append(cleaned)
 
+        # Validation Pydantic
+        print(f'  🔍 Validation Pydantic de {len(articles_clean)} articles...')
+        articles_valides, rapport = valider_liste_articles(articles_clean)
+        print(f'  ✅ Valides   : {rapport["valides"]}/{rapport["total"]}')
+        print(f'  ❌ Invalides : {rapport["invalides"]}/{rapport["total"]}')
+        print(f'  📊 Taux      : {rapport["taux_validite"]}%')
+
         silver_name = file_name.replace('/', '/silver_', 1) if '/' in file_name else f'silver_{file_name}'
-        write_json_to_minio(client, BUCKET_SILVER, silver_name, articles_clean)
-        total_processed += len(articles_clean)
+        write_json_to_minio(client, BUCKET_SILVER, silver_name, articles_valides)
+        total_processed += len(articles_valides)
 
     print(f'\n✅ Silver layer prête : {total_processed} articles traités')
 
