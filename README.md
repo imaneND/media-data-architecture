@@ -19,6 +19,7 @@ Scraping → Kafka → MinIO (Bronze) → Silver → Gold → PostgreSQL → Gra
 | Warehouse | PostgreSQL |
 | Dashboards | Grafana |
 | Monitoring | Prometheus |
+| Validation | Pydantic |
 | Déploiement | Docker |
 
 ## 🚀 Installation et démarrage
@@ -31,8 +32,8 @@ Scraping → Kafka → MinIO (Bronze) → Silver → Gold → PostgreSQL → Gra
 ### Lancer le projet
 
 # 1. Cloner le dépôt
-git clone https://github.com/imaneND/projet-big-data-medias.git
-cd projet-big-data-medias
+git clone https://github.com/imaneND/media-data-architecture.git
+cd media-data-architecture
 
 # 2. Installer les dépendances Python
 pip install -r requirements.txt
@@ -51,7 +52,7 @@ docker compose up -d
 
 ## 📁 Structure du projet
 
-projet-big-data-medias/
+media-data-architecture/
 ├── docker-compose.yml
 ├── requirements.txt
 ├── README.md
@@ -62,6 +63,9 @@ projet-big-data-medias/
 │   ├── bronze_layer.py
 │   ├── silver_layer.py
 │   └── gold_layer.py
+├── models/
+│   ├── article_model.py
+│   └── test_pydantic.py
 ├── warehouse/
 │   ├── create_tables.sql
 │   └── load_data.py
@@ -74,6 +78,7 @@ projet-big-data-medias/
 └── visualisation/
     └── grafana_dashboard.json
 
-## 👥 Équipe
-- **Personne A** : Scraping, Ingestion Kafka, Qualité données
-- **Personne B** : Data Lake, Médaillon, Airflow, Visualisation
+## 🎁 Bonus
+- **Pydantic** : Validation automatique des articles (titre, URL, contenu, source)
+- **Docker** : Déploiement complet en une commande
+
