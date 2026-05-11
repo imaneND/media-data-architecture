@@ -1,14 +1,14 @@
-# 📰 Plateforme Big Data — Analyse de Tendances Médiatiques
+#  Plateforme Big Data — Analyse de Tendances Médiatiques
 
-## 📋 Description
+##  Description
 Plateforme Big Data distribuée pour la collecte, le stockage, 
 la transformation et l'analyse automatique d'articles de presse 
 provenant de sources marocaines et internationales.
 
-## 🏗️ Architecture
+##  Architecture
 Scraping → Kafka → MinIO (Bronze) → Silver → Gold → PostgreSQL → Grafana
 
-## 🛠️ Technologies utilisées
+##  Technologies utilisées
 
 | Composant | Technologie |
 |---|---|
@@ -41,7 +41,7 @@ pip install -r requirements.txt
 # 3. Démarrer tous les services
 docker compose up -d
 
-## 📊 Accès aux interfaces
+##  Accès aux interfaces
 
 | Service | URL | Login |
 |---|---|---|
