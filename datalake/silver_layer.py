@@ -9,6 +9,44 @@ from datalake.minio_client import get_client, read_json_from_minio, write_json_t
 from datalake.minio_client import list_objects, BUCKET_BRONZE, BUCKET_SILVER
 from models.article_model import valider_liste_articles
 
+# ── AJOUT 1 : Mapping URL → Catégorie ────────────────────────────────────────
+CATEGORY_MAPPING = {
+    'sport':         ['sport', 'football', 'tennis', 'basketball', 'rugby'],
+    'politique':     ['politics', 'world', 'government', 'election', 'policy'],
+    'economie':      ['business', 'economy', 'finance', 'market', 'trade'],
+    'technologie':   ['tech', 'technology', 'science', 'ai', 'digital', 'cyber'],
+    'culture':       ['culture', 'arts', 'entertainment', 'music', 'film'],
+    'sante':         ['health', 'medical', 'covid', 'virus', 'hospital'],
+    'environnement': ['climate', 'environment', 'green', 'energy', 'ecology'],
+    'education':     ['education', 'school', 'university', 'student'],
+}
+
+def extract_categorie_from_url(url: str, titre: str = '') -> str:
+    """Extraire la catégorie depuis l'URL et le titre."""
+    text = (url + ' ' + titre).lower()
+    for categorie, keywords in CATEGORY_MAPPING.items():
+        if any(kw in text for kw in keywords):
+            return categorie
+    return 'general'
+
+# ── AJOUT 2 : Correction des dates ───────────────────────────────────────────
+def fix_date_publication(date_str: str) -> str:
+    """Normaliser la date — si absente, utiliser aujourd'hui."""
+    if not date_str or not date_str.strip():
+        return datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
+    formats = [
+        '%Y-%m-%dT%H:%M:%S', '%Y-%m-%d %H:%M:%S',
+        '%Y-%m-%d', '%d/%m/%Y', '%d-%m-%Y'
+    ]
+    for fmt in formats:
+        try:
+            dt = datetime.strptime(date_str.strip()[:19], fmt)
+            return dt.strftime('%Y-%m-%dT%H:%M:%S')
+        except ValueError:
+            continue
+    return datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
+
+# ── Fonctions existantes ──────────────────────────────────────────────────────
 def clean_html(text):
     """Supprimer les balises HTML d'un texte."""
     if not text:
@@ -43,23 +81,33 @@ def clean_article(article):
     raw_content = article.get('contenu', '')
     clean_content = clean_html(raw_content)
     clean_content = normalize_text(clean_content)
-
     clean_title = normalize_text(clean_html(article.get('titre', '')))
     langue = article.get('langue') or detect_language(clean_content)
     word_count = len(clean_content.split()) if clean_content else 0
+    url = article.get('url', '')
+
+    # ── NOUVELLES LIGNES ──────────────────────────────────────────────────────
+    # Extraire catégorie automatiquement depuis URL + titre
+    categorie = article.get('categorie', 'unknown')
+    if not categorie or categorie == 'unknown':
+        categorie = extract_categorie_from_url(url, clean_title)
+
+    # Corriger la date de publication
+    date_pub = fix_date_publication(article.get('date_publication', ''))
+    # ──────────────────────────────────────────────────────────────────────────
 
     return {
-        'id': generate_id(article),
-        'titre': clean_title,
-        'auteur': normalize_text(article.get('auteur', 'Inconnu')),
-        'date_publication': article.get('date_publication', ''),
-        'categorie': article.get('categorie', 'unknown'),
-        'contenu': clean_content,
-        'source': article.get('source', ''),
-        'url': article.get('url', ''),
-        'langue': langue,
-        'nombre_mots': word_count,
-        'date_collecte': article.get('date_collecte', ''),
+        'id':                     generate_id(article),
+        'titre':                  clean_title,
+        'auteur':                 normalize_text(article.get('auteur', 'Inconnu')),
+        'date_publication':       date_pub,      # ← date corrigée
+        'categorie':              categorie,     # ← catégorie extraite
+        'contenu':                clean_content,
+        'source':                 article.get('source', ''),
+        'url':                    url,
+        'langue':                 langue,
+        'nombre_mots':            word_count,
+        'date_collecte':          article.get('date_collecte', ''),
         'date_traitement_silver': datetime.now().isoformat()
     }
 
