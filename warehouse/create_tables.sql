@@ -68,3 +68,57 @@ SELECT
 FROM articles
 GROUP BY pays
 ORDER BY nombre_articles DESC;
+
+-- ── NOUVELLES TABLES À AJOUTER ────────────────────────────────────────────
+
+-- Table des mots-clés extraits par la Gold Layer
+CREATE TABLE IF NOT EXISTS mots_cles (
+    id            SERIAL PRIMARY KEY,
+    mot           VARCHAR(150) NOT NULL,
+    frequence     INTEGER      NOT NULL,
+    source        VARCHAR(100),
+    date_analyse  DATE         DEFAULT CURRENT_DATE,
+    created_at    TIMESTAMP    DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Table des tendances agrégées par jour et par source
+CREATE TABLE IF NOT EXISTS tendances_jour (
+    id              SERIAL PRIMARY KEY,
+    date_jour       DATE         NOT NULL,
+    source          VARCHAR(100),
+    categorie       VARCHAR(100),
+    nombre_articles INTEGER      DEFAULT 0,
+    created_at      TIMESTAMP    DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ── INDEX POUR ACCÉLÉRER LES REQUÊTES GRAFANA ─────────────────────────────
+CREATE INDEX IF NOT EXISTS idx_articles_date
+    ON articles(date_publication);
+CREATE INDEX IF NOT EXISTS idx_articles_source
+    ON articles(source);
+CREATE INDEX IF NOT EXISTS idx_articles_categorie
+    ON articles(categorie);
+CREATE INDEX IF NOT EXISTS idx_mots_cles_date
+    ON mots_cles(date_analyse);
+CREATE INDEX IF NOT EXISTS idx_mots_cles_mot
+    ON mots_cles(mot);
+
+-- ── VUES ANALYTIQUES ──────────────────────────────────────────────────────
+CREATE OR REPLACE VIEW mots_cles_top AS
+SELECT mot, SUM(frequence) AS total
+FROM mots_cles
+GROUP BY mot
+ORDER BY total DESC
+LIMIT 20;
+
+CREATE OR REPLACE VIEW evolution_quotidienne AS
+SELECT
+    DATE(date_publication) AS jour,
+    source,
+    categorie,
+    COUNT(*)               AS nombre_articles,
+    AVG(nombre_mots)       AS moyenne_mots
+FROM articles
+WHERE date_publication IS NOT NULL
+GROUP BY DATE(date_publication), source, categorie
+ORDER BY jour DESC;
