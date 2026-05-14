@@ -26,6 +26,11 @@ STOPWORDS = {
     'nous','vous','eux','mes','ses','leur','leurs','cette','tout',
     # Mots parasites
     'potato','said','also','year','time','day','days','week','month',
+    # Ajouter ces mots à la liste existante STOPWORDS
+    'years', 'company', 'world', 'your', 'like', 'only', 'most',
+    'trump', 'musk', 'altman',  # noms propres trop génériques
+    'including', 'according', 'while', 'being', 'these', 'those',
+    'between', 'through', 'during', 'against', 'however', 'although',
 }
 
 def extract_keywords(text: str, top_n: int = 20) -> list:

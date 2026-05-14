@@ -1,94 +1,399 @@
 {
   "__inputs": [],
   "__requires": [],
-  "annotations": {
-    "list": []
-  },
-  "description": "Dashboard articles de presse - Projet Big Data",
+  "annotations": { "list": [] },
+  "description": "Binôme : Rania Bikikre · Imane Nadif | Module : Architecture de Données Distribuée | 2024-2025",
   "editable": true,
   "fiscalYearStartMonth": 0,
-  "graphTooltip": 0,
+  "graphTooltip": 1,
   "id": null,
   "links": [],
   "panels": [
+
     {
+      "id": 1,
+      "type": "stat",
+      "title": "📰 Total Articles",
+      "gridPos": { "h": 3, "w": 4, "x": 0, "y": 0 },
       "datasource": "PostgreSQL",
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "colorMode": "background",
+        "graphMode": "area",
+        "textMode": "auto",
+        "orientation": "auto"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "thresholds"},
+          "color": { "mode": "fixed", "fixedColor": "#1F6E43" },
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "#1F6E43", "value": null }] },
+          "unit": "short",
+          "decimals": 0
+        }
+      },
+      "targets": [{ "rawSql": "SELECT COUNT(*) AS value FROM articles;", "format": "table", "refId": "A" }]
+    },
+
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "🌍 Sources Actives",
+      "gridPos": { "h": 3, "w": 4, "x": 4, "y": 0 },
+      "datasource": "PostgreSQL",
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "colorMode": "background",
+        "graphMode": "area"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "fixed", "fixedColor": "#1565C0" },
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "#1565C0", "value": null }] },
+          "decimals": 0
+        }
+      },
+      "targets": [{ "rawSql": "SELECT COUNT(DISTINCT source) AS value FROM articles;", "format": "table", "refId": "A" }]
+    },
+
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "🏷️ Catégories",
+      "gridPos": { "h": 3, "w": 4, "x": 8, "y": 0 },
+      "datasource": "PostgreSQL",
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "colorMode": "background",
+        "graphMode": "area"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "fixed", "fixedColor": "#6A1B9A" },
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "#6A1B9A", "value": null }] },
+          "decimals": 0
+        }
+      },
+      "targets": [{ "rawSql": "SELECT COUNT(DISTINCT categorie) AS value FROM articles WHERE categorie NOT IN ('unknown', 'general', 'Unknown', 'General');", "format": "table", "refId": "A" }]
+    },
+
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "🔑 Mots-clés NLP",
+      "gridPos": { "h": 3, "w": 4, "x": 12, "y": 0 },
+      "datasource": "PostgreSQL",
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "colorMode": "background",
+        "graphMode": "area"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "fixed", "fixedColor": "#E65100" },
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "#E65100", "value": null }] },
+          "decimals": 0
+        }
+      },
+      "targets": [{ "rawSql": "SELECT COUNT(DISTINCT mot) AS value FROM mots_cles;", "format": "table", "refId": "A" }]
+    },
+
+    {
+      "id": 5,
+      "type": "gauge",
+      "title": "✅ Score Qualité",
+      "gridPos": { "h": 3, "w": 4, "x": 16, "y": 0 },
+      "datasource": "PostgreSQL",
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "orientation": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
           "thresholds": {
+            "mode": "absolute",
             "steps": [
-              {"color": "green", "value": null}
+              { "color": "red", "value": null },
+              { "color": "yellow", "value": 60 },
+              { "color": "green", "value": 85 }
             ]
+          },
+          "unit": "percent",
+          "max": 100,
+          "min": 0
+        }
+      },
+      "targets": [{
+        "rawSql": "SELECT ROUND(100.0 * COUNT(*) FILTER (WHERE titre IS NOT NULL AND titre != '' AND date_publication IS NOT NULL AND nombre_mots >= 50) / NULLIF(COUNT(*), 0), 1) AS value FROM articles;",
+        "format": "table",
+        "refId": "A"
+      }]
+    },
+
+    {
+      "id": 6,
+      "type": "stat",
+      "title": "📅 Jours de Collecte",
+      "gridPos": { "h": 3, "w": 4, "x": 20, "y": 0 },
+      "datasource": "PostgreSQL",
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "colorMode": "background",
+        "graphMode": "area"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "fixed", "fixedColor": "#00695C" },
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "#00695C", "value": null }] },
+          "decimals": 0
+        }
+      },
+      "targets": [{ "rawSql": "SELECT COUNT(DISTINCT DATE(date_publication)) AS value FROM articles WHERE date_publication IS NOT NULL;", "format": "table", "refId": "A" }]
+    },
+
+    {
+      "id": 7,
+      "type": "timeseries",
+      "title": "📈 Évolution des Publications par Source",
+      "gridPos": { "h": 9, "w": 16, "x": 0, "y": 3 },
+      "datasource": "PostgreSQL",
+      "options": {
+        "tooltip": { "mode": "multi", "sort": "desc" },
+        "legend": { "displayMode": "table", "placement": "bottom", "showLegend": true, "calcs": ["sum", "max"] }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "lineWidth": 3,
+            "fillOpacity": 20,
+            "pointSize": 8,
+            "showPoints": "always",
+            "lineInterpolation": "smooth",
+            "gradientMode": "opacity",
+            "spanNulls": true
           }
         }
       },
-      "gridPos": {"h": 4, "w": 6, "x": 0, "y": 0},
-      "id": 1,
-      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}},
-      "title": "Total Articles",
-      "type": "stat",
-      "targets": [
-        {
-          "rawSql": "SELECT COUNT(*) AS value FROM articles;",
-          "format": "table"
-        }
-      ]
+      "targets": [{
+        "rawSql": "SELECT DATE(date_publication) AS time, source AS metric, COUNT(*) AS value FROM articles WHERE date_publication IS NOT NULL GROUP BY DATE(date_publication), source ORDER BY time ASC;",
+        "format": "time_series",
+        "refId": "A"
+      }]
     },
+
     {
-      "datasource": "PostgreSQL",
-      "fieldConfig": {
-        "defaults": {"color": {"mode": "palette-classic"}}
-      },
-      "gridPos": {"h": 8, "w": 12, "x": 6, "y": 0},
-      "id": 2,
-      "title": "Articles par Source",
+      "id": 8,
       "type": "piechart",
-      "targets": [
-        {
-          "rawSql": "SELECT source AS metric, COUNT(*) AS value FROM articles GROUP BY source ORDER BY value DESC;",
-          "format": "table"
-        }
-      ]
-    },
-    {
+      "title": "🌐 Répartition par Source",
+      "gridPos": { "h": 9, "w": 8, "x": 16, "y": 3 },
       "datasource": "PostgreSQL",
-      "fieldConfig": {
-        "defaults": {"color": {"mode": "palette-classic"}}
+      "options": {
+        "pieType": "donut",
+        "displayLabels": ["name", "value", "percent"],
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "values": ["value", "percent"]
+        },
+        "tooltip": { "mode": "single" }
       },
-      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 8},
-      "id": 3,
-      "title": "Evolution Articles par Jour",
-      "type": "timeseries",
-      "targets": [
-        {
-          "rawSql": "SELECT DATE(date_publication) AS time, COUNT(*) AS value, source AS metric FROM articles WHERE date_publication > NOW() - INTERVAL '30 days' GROUP BY DATE(date_publication), source ORDER BY time;",
-          "format": "table"
-        }
-      ]
+      "fieldConfig": {
+        "defaults": { "color": { "mode": "palette-classic" } },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "Al Jazeera" }, "properties": [{ "id": "color", "value": { "fixedColor": "#F4511E", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "BBC News" }, "properties": [{ "id": "color", "value": { "fixedColor": "#E53935", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "The Guardian" }, "properties": [{ "id": "color", "value": { "fixedColor": "#1E88E5", "mode": "fixed" } }] }
+        ]
+      },
+      "targets": [{
+        "rawSql": "SELECT NOW() AS time, source AS metric, COUNT(*) AS value FROM articles WHERE source IN ('Al Jazeera', 'BBC News', 'The Guardian') GROUP BY source ORDER BY value DESC;",
+        "format": "time_series",
+        "refId": "A"
+      }]
     },
+
     {
-      "datasource": "PostgreSQL",
-      "fieldConfig": {
-        "defaults": {"color": {"mode": "palette-classic"}}
-      },
-      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16},
-      "id": 4,
-      "title": "Top Categories",
+      "id": 9,
       "type": "barchart",
-      "targets": [
-        {
-          "rawSql": "SELECT categorie AS metric, COUNT(*) AS value FROM articles WHERE categorie != 'unknown' GROUP BY categorie ORDER BY value DESC LIMIT 10;",
-          "format": "table"
+      "title": "🔑 Top 15 Mots-clés Significatifs",
+      "gridPos": { "h": 9, "w": 12, "x": 0, "y": 12 },
+      "datasource": "PostgreSQL",
+      "options": {
+        "orientation": "horizontal",
+        "legend": { "displayMode": "hidden", "showLegend": false },
+        "tooltip": { "mode": "single" },
+        "xTickLabelRotation": 0,
+        "barRadius": 0.1,
+        "groupWidth": 0.7
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "continuous-BlPu" },
+          "custom": { "fillOpacity": 90, "lineWidth": 0 }
         }
-      ]
+      },
+      "targets": [{
+        "rawSql": "SELECT mot AS metric, SUM(frequence) AS value FROM mots_cles WHERE source IS NULL AND mot NOT IN ('years','company','world','your','like','only','most','trump','musk','altman','including','while','being','these','those','between','through','during','against','however','although','people','could','would','should','their','about','after','before','other','there','where','which','from','that','this','with','have','been','were') GROUP BY mot ORDER BY value DESC LIMIT 15;",
+        "format": "table",
+        "refId": "A"
+      }]
+    },
+
+    {
+      "id": 10,
+      "type": "barchart",
+      "title": "🚨 Sujets Émergents — Tendances du Jour",
+      "gridPos": { "h": 9, "w": 12, "x": 12, "y": 12 },
+      "datasource": "PostgreSQL",
+      "options": {
+        "orientation": "horizontal",
+        "legend": { "displayMode": "hidden", "showLegend": false },
+        "tooltip": { "mode": "single" },
+        "barRadius": 0.1,
+        "groupWidth": 0.7
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "continuous-RdYlGr" },
+          "custom": { "fillOpacity": 90, "lineWidth": 0 }
+        }
+      },
+      "targets": [{
+        "rawSql": "SELECT mot AS metric, SUM(frequence) AS value FROM mots_cles WHERE source = 'emergents' AND mot NOT IN ('years','company','world','your','like','only','most','trump','musk','altman','including','while','being','these','those','between','through','during','against','however','although','people','could','would','should','their','about','after','before','other','there','where','which','from','that','this','with','have','been','were') GROUP BY mot ORDER BY value DESC LIMIT 15;",
+        "format": "table",
+        "refId": "A"
+      }]
+    },
+
+    {
+      "id": 11,
+      "type": "barchart",
+      "title": "📂 Distribution par Catégorie Thématique",
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 21 },
+      "datasource": "PostgreSQL",
+      "options": {
+        "orientation": "vertical",
+        "legend": { "displayMode": "hidden", "showLegend": false },
+        "tooltip": { "mode": "single" },
+        "barRadius": 0.1,
+        "groupWidth": 0.7,
+        "xTickLabelRotation": -30
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 85, "lineWidth": 0 }
+        }
+      },
+      "targets": [{
+        "rawSql": "SELECT categorie AS metric, COUNT(*) AS value FROM articles WHERE categorie NOT IN ('unknown', 'general', 'Unknown', 'General') GROUP BY categorie ORDER BY value DESC;",
+        "format": "table",
+        "refId": "A"
+      }]
+    },
+
+    {
+      "id": 12,
+      "type": "barchart",
+      "title": "✍️ Richesse du Contenu par Source (Moy. Mots/Article)",
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 21 },
+      "datasource": "PostgreSQL",
+      "options": {
+        "orientation": "vertical",
+        "legend": { "displayMode": "hidden", "showLegend": false },
+        "tooltip": { "mode": "single" },
+        "barRadius": 0.1,
+        "groupWidth": 0.7
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "continuous-GrYlRd" },
+          "custom": { "fillOpacity": 85, "lineWidth": 0 },
+          "unit": "short",
+          "decimals": 0
+        }
+      },
+      "targets": [{
+        "rawSql": "SELECT source AS metric, ROUND(AVG(nombre_mots), 0) AS value FROM articles WHERE nombre_mots > 0 GROUP BY source ORDER BY value DESC;",
+        "format": "table",
+        "refId": "A"
+      }]
+    },
+
+    {
+      "id": 13,
+      "type": "piechart",
+      "title": "🗣️ Répartition Linguistique des Articles",
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 21 },
+      "datasource": "PostgreSQL",
+      "options": {
+        "pieType": "pie",
+        "displayLabels": ["name", "percent"],
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "values": ["percent", "value"]
+        },
+        "tooltip": { "mode": "single" }
+      },
+      "fieldConfig": {
+        "defaults": { "color": { "mode": "palette-classic" } },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "Anglais" }, "properties": [{ "id": "color", "value": { "fixedColor": "#1565C0", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "Arabe" }, "properties": [{ "id": "color", "value": { "fixedColor": "#2E7D32", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "Français" }, "properties": [{ "id": "color", "value": { "fixedColor": "#F57F17", "mode": "fixed" } }] }
+        ]
+      },
+      "targets": [{
+        "rawSql": "SELECT NOW() AS time, CASE langue WHEN 'en' THEN 'Anglais' WHEN 'ar' THEN 'Arabe' WHEN 'fr' THEN 'Français' ELSE COALESCE(langue, 'Autre') END AS metric, COUNT(*) AS value FROM articles WHERE langue IS NOT NULL GROUP BY langue ORDER BY value DESC;",
+        "format": "time_series",
+        "refId": "A"
+      }]
+    },
+
+    {
+      "id": 14,
+      "type": "table",
+      "title": "📋 Derniers Articles Collectés",
+      "gridPos": { "h": 9, "w": 24, "x": 0, "y": 29 },
+      "datasource": "PostgreSQL",
+      "options": {
+        "showHeader": true,
+        "sortBy": [{ "desc": true, "displayName": "date" }],
+        "footer": { "show": true, "reducer": ["count"], "fields": ["titre"] }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "align": "left", "displayMode": "auto", "filterable": true }
+        },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "titre" }, "properties": [{ "id": "custom.width", "value": 450 }, { "id": "displayName", "value": "Titre" }] },
+          { "matcher": { "id": "byName", "options": "source" }, "properties": [{ "id": "custom.width", "value": 130 }, { "id": "displayName", "value": "Source" }] },
+          { "matcher": { "id": "byName", "options": "categorie" }, "properties": [{ "id": "custom.width", "value": 120 }, { "id": "displayName", "value": "Catégorie" }] },
+          { "matcher": { "id": "byName", "options": "langue" }, "properties": [{ "id": "custom.width", "value": 80 }, { "id": "displayName", "value": "Langue" }] },
+          { "matcher": { "id": "byName", "options": "nombre_mots" }, "properties": [{ "id": "custom.width", "value": 110 }, { "id": "displayName", "value": "Nb Mots" }, { "id": "custom.align", "value": "center" }] },
+          { "matcher": { "id": "byName", "options": "date" }, "properties": [{ "id": "custom.width", "value": 120 }, { "id": "displayName", "value": "Date" }] }
+        ]
+      },
+      "targets": [{
+        "rawSql": "SELECT titre, source, categorie, CASE langue WHEN 'en' THEN '🇬🇧 EN' WHEN 'ar' THEN '🇸🇦 AR' WHEN 'fr' THEN '🇫🇷 FR' ELSE langue END AS langue, nombre_mots, DATE(date_publication) AS date FROM articles WHERE titre IS NOT NULL AND titre != '' AND categorie NOT IN ('unknown', 'general', 'Unknown', 'General') ORDER BY date_publication DESC NULLS LAST LIMIT 25;",
+        "format": "table",
+        "refId": "A"
+      }]
     }
+
   ],
   "refresh": "5m",
   "schemaVersion": 38,
-  "tags": ["big-data", "articles", "presse"],
-  "time": {"from": "now-30d", "to": "now"},
-  "title": "Plateforme Big Data - Articles de Presse",
-  "uid": "big-data-articles",
-  "version": 1
+  "tags": ["big-data", "nlp", "medias", "tendances", "architecture-donnees"],
+  "time": { "from": "now-30d", "to": "now" },
+  "timepicker": {},
+  "title": "🗞️ Plateforme Big Data — Collecte & Analyse d'Articles de Presse en Temps Réel",
+  "uid": "big-data-medias-v3",
+  "version": 4
 }
