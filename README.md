@@ -172,7 +172,7 @@ media-data-architecture/
 
 ## 👥 Équipe
 
-| Membre | Rôle | Tâches |
-|---|---|---|
-| **Imane Nadif** | Personne B | Data Lake, Médaillon, Airflow, Grafana, Qualité |
-| **Rania Bikikre** | Personne A | Scraping, Kafka, Ingestion, Tests |
+| Membre | 
+|---|---|
+| **Rania Bikikre** | 
+| **Imane Nadif** | 
