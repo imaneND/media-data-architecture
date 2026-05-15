@@ -172,7 +172,7 @@ media-data-architecture/
 
 ## 👥 Équipe
 
-| Membre | 
-|---|---|
-| **Rania Bikikre** | 
-| **Imane Nadif** | 
+| Membre |
+|---|
+| **Rania Bikikre** |
+| **Imane Nadif** |
